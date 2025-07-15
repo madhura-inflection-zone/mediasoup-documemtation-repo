@@ -1,3 +1,6 @@
+// Load environment variables first
+require('dotenv').config()
+
 const express = require('express')
 
 const app = express()
@@ -9,10 +12,10 @@ const path = require('path')
 const Room = require('./Room')
 const Peer = require('./Peer')
 
-const options = {
-  key: fs.readFileSync(path.join(__dirname, config.sslKey), 'utf-8'),
-  cert: fs.readFileSync(path.join(__dirname, config.sslCrt), 'utf-8')
-}
+// const options = {
+//   key: fs.readFileSync(path.join(__dirname, config.sslKey), 'utf-8'),
+//   cert: fs.readFileSync(path.join(__dirname, config.sslCrt), 'utf-8')
+// }
 
 const httpsServer = https.createServer(options, app)
 const io = require('socket.io')(httpsServer)

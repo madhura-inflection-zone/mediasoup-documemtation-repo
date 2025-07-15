@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Network Media Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        video {
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Cross-Network Media Test</h1>
+        
+        <div id="status" class="status info">Initializing...</div>
+        
+        <h2>Network Information</h2>
+        <div id="networkInfo"></div>
+        
+        <h2>Media Devices Test</h2>
+        <button id="testDevices">Test Camera & Microphone</button>
+        <video id="localVideo" autoplay muted playsinline></video>
+        
+        <h2>Server Connectivity</h2>
+        <button id="testServer">Test Server Connection</button>
+        <div id="serverStatus"></div>
+        
+        <h2>WebRTC Test</h2>
+        <button id="testWebRTC">Test WebRTC Capabilities</button>
+        <div id="webrtcStatus"></div>
+        
+        <h2>Logs</h2>
+        <div id="logs" class="log"></div>
+        
+        <h2>Next Steps</h2>
+        <div class="status info">
+            <p><strong>If all tests pass:</strong></p>
+            <ol>
+                <li>Go to the main application: <a href="/" target="_blank">Open Main App</a></li>
+                <li>Test with devices on different networks</li>
+                <li>Check the main app for video streaming</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const logs = document.getElementById('logs');
+        const status = document.getElementById('status');
+        const networkInfo = document.getElementById('networkInfo');
+        const serverStatus = document.getElementById('serverStatus');
+        const webrtcStatus = document.getElementById('webrtcStatus');
+        const localVideo = document.getElementById('localVideo');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        // Network Information
+        function showNetworkInfo() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const info = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                connectionType: connection ? connection.effectiveType : 'unknown',
+                connectionDownlink: connection ? connection.downlink : 'unknown'
+            };
+            
+            networkInfo.innerHTML = `
+                <p><strong>Browser:</strong> ${info.userAgent}</p>
+                <p><strong>Platform:</strong> ${info.platform}</p>
+                <p><strong>Language:</strong> ${info.language}</p>
+                <p><strong>Online:</strong> ${info.onLine ? 'Yes' : 'No'}</p>
+                <p><strong>Connection:</strong> ${info.connectionType} (${info.connectionDownlink} Mbps)</p>
+            `;
+        }
+
+        // Test Media Devices
+        async function testMediaDevices() {
+            try {
+                log('Testing media devices...');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 640, height: 480 },
+                    audio: true
+                });
+                
+                localVideo.srcObject = stream;
+                log('✅ Camera and microphone access granted');
+                
+                // Check if video is actually playing
+                localVideo.onloadedmetadata = () => {
+                    log('✅ Video stream loaded successfully');
+                };
+                
+                localVideo.onerror = (error) => {
+                    log('❌ Video stream error: ' + error);
+                };
+                
+            } catch (error) {
+                log('❌ Media devices error: ' + error.message);
+                updateStatus('Media devices test failed', 'error');
+            }
+        }
+
+        // Test Server Connection
+        async function testServerConnection() {
+            try {
+                log('Testing server connection...');
+                const response = await fetch('/');
+                if (response.ok) {
+                    log('✅ Server connection successful');
+                    serverStatus.innerHTML = '<div class="status success">Server is reachable</div>';
+                } else {
+                    log('❌ Server returned status: ' + response.status);
+                    serverStatus.innerHTML = '<div class="status error">Server error: ' + response.status + '</div>';
+                }
+            } catch (error) {
+                log('❌ Server connection failed: ' + error.message);
+                serverStatus.innerHTML = '<div class="status error">Cannot connect to server</div>';
+            }
+        }
+
+        // Test WebRTC Capabilities
+        function testWebRTC() {
+            log('Testing WebRTC capabilities...');
+            
+            const capabilities = {
+                getUserMedia: !!navigator.mediaDevices && !!navigator.mediaDevices.getUserMedia,
+                RTCPeerConnection: !!window.RTCPeerConnection,
+                RTCSessionDescription: !!window.RTCSessionDescription,
+                RTCIceCandidate: !!window.RTCIceCandidate,
+                webkitRTCPeerConnection: !!window.webkitRTCPeerConnection,
+                mozRTCPeerConnection: !!window.mozRTCPeerConnection
+            };
+            
+            let allSupported = true;
+            let statusHtml = '<div class="status info">WebRTC Support:</div>';
+            
+            for (const [feature, supported] of Object.entries(capabilities)) {
+                const status = supported ? '✅' : '❌';
+                const color = supported ? 'success' : 'error';
+                statusHtml += `<div class="status ${color}">${status} ${feature}</div>`;
+                if (!supported) allSupported = false;
+                log(`${status} ${feature}: ${supported}`);
+            }
+            
+            webrtcStatus.innerHTML = statusHtml;
+            
+            if (allSupported) {
+                log('✅ All WebRTC features supported');
+            } else {
+                log('❌ Some WebRTC features not supported');
+                updateStatus('WebRTC support incomplete', 'warning');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Cross-network test page loaded');
+            showNetworkInfo();
+            testWebRTC();
+            
+            // Event listeners
+            document.getElementById('testDevices').addEventListener('click', testMediaDevices);
+            document.getElementById('testServer').addEventListener('click', testServerConnection);
+            document.getElementById('testWebRTC').addEventListener('click', testWebRTC);
+            
+            updateStatus('Ready for testing', 'success');
+        });
+
+        // Network status monitoring
+        window.addEventListener('online', () => {
+            log('✅ Network connection restored');
+            updateStatus('Online', 'success');
+        });
+        
+        window.addEventListener('offline', () => {
+            log('❌ Network connection lost');
+            updateStatus('Offline', 'error');
+        });
+    </script>
+</body>
+</html> 

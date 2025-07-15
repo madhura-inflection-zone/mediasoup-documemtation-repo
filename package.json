@@ -9,6 +9,7 @@
     "mon": "nodemon src/app.js",
     "watch": "watchify public/index.js -o public/bundle.js -v",
     "lint": "npx prettier --write .",
+    "setup": "node setup-cross-network.js",
     "docker-build": "docker build --tag dirvann/mediasoup-video-rooms .",
     "docker-run": "docker run --name dirvann-mediasoup-rooms -p 10000-10100:10000-10100 -p 3016:3016 dirvann/mediasoup-video-rooms",
     "docker-start": "docker start dirvann-mediasoup-rooms",
@@ -22,7 +23,8 @@
     "httpolyglot": "^0.1.2",
     "mediasoup": "^3.14.1",
     "mediasoup-client": "^3.7.7",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "prettier": "3.2.5"

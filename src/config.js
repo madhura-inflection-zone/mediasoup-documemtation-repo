@@ -17,9 +17,19 @@ const getLocalIp = () => {
   return localIp
 }
 
+// Get public IP from environment variable or use local IP as fallback
+const getPublicIp = () => {
+  return process.env.PUBLIC_IP || process.env.LOCAL_IP || getLocalIp()
+}
+
+// Get local IP from environment variable or auto-detect
+const getLocalNetworkIp = () => {
+  return process.env.LOCAL_IP || getLocalIp()
+}
+
 module.exports = {
   listenIp: '0.0.0.0',
-  listenPort: 3016,
+  listenPort: parseInt(process.env.PORT) || 3016,
   sslCrt: '../ssl/cert.pem',
   sslKey: '../ssl/key.pem',
 
@@ -27,9 +37,9 @@ module.exports = {
     // Worker settings
     numWorkers: Object.keys(os.cpus()).length,
     worker: {
-      rtcMinPort: 10000,
-      rtcMaxPort: 10100,
-      logLevel: 'warn',
+      rtcMinPort: parseInt(process.env.RTC_MIN_PORT) || 10000,
+      rtcMaxPort: parseInt(process.env.RTC_MAX_PORT) || 10100,
+      logLevel: process.env.LOG_LEVEL || 'warn',
       logTags: [
         'info',
         'ice',
@@ -60,6 +70,16 @@ module.exports = {
           parameters: {
             'x-google-start-bitrate': 1000
           }
+        },
+        {
+          kind: 'video',
+          mimeType: 'video/H264',
+          clockRate: 90000,
+          parameters: {
+            'packetization-mode': 1,
+            'profile-level-id': '42e01f',
+            'level-asymmetry-allowed': 1
+          }
         }
       ]
     },
@@ -68,12 +88,11 @@ module.exports = {
       listenIps: [
         {
           ip: '0.0.0.0',
-          announcedIp: '192.168.1.6'
-          // announcedIp: getLocalIp() // replace by public IP address
+          announcedIp: getPublicIp()
         }
       ],
-      maxIncomingBitrate: 1500000,
-      initialAvailableOutgoingBitrate: 1000000
+      maxIncomingBitrate: parseInt(process.env.MAX_INCOMING_BITRATE) || 1500000,
+      initialAvailableOutgoingBitrate: parseInt(process.env.INITIAL_OUTGOING_BITRATE) || 1000000
     }
   }
 }

@@ -246,9 +246,18 @@ class RoomClient {
     this.socket.on(
       'newProducers',
       async function (data) {
-        console.log('New producers', data)
+        console.log('🔴 New producers received:', data)
+        console.log('🔴 Remote video element:', this.remoteVideoEl)
+        console.log('🔴 Remote audio element:', this.remoteAudioEl)
+        
         for (let { producer_id } of data) {
-          await this.consume(producer_id)
+          console.log('🔴 Consuming producer:', producer_id)
+          try {
+            await this.consume(producer_id)
+            console.log('✅ Successfully consumed producer:', producer_id)
+          } catch (error) {
+            console.error('❌ Failed to consume producer:', producer_id, error)
+          }
         }
       }.bind(this)
     )
@@ -411,23 +420,41 @@ class RoomClient {
   }
 
   async consume(producer_id) {
+    console.log('🔴 Starting consume for producer:', producer_id)
     //let info = await this.roomInfo()
 
     this.getConsumeStream(producer_id).then(
       function ({ consumer, stream, kind }) {
+        console.log('🔴 Got consume stream:', { consumerId: consumer.id, kind, stream })
         this.consumers.set(consumer.id, consumer)
 
         let elem
         if (kind === 'video') {
+          console.log('🔴 Creating video element for remote stream')
           elem = document.createElement('video')
           elem.srcObject = stream
           elem.id = consumer.id
           elem.playsinline = false
           elem.autoplay = true
           elem.className = 'vid'
+          elem.style.width = '100%'
+          elem.style.maxWidth = '400px'
+          elem.style.border = '2px solid #007bff'
+          elem.style.borderRadius = '4px'
+          elem.style.margin = '10px'
+          
+          console.log('🔴 Appending video element to:', this.remoteVideoEl)
           this.remoteVideoEl.appendChild(elem)
+          console.log('🔴 Video element added, handling fullscreen')
           this.handleFS(elem.id)
+          
+          // Add event listeners for debugging
+          elem.onloadedmetadata = () => console.log('✅ Remote video metadata loaded')
+          elem.oncanplay = () => console.log('✅ Remote video can play')
+          elem.onerror = (e) => console.error('❌ Remote video error:', e)
+          elem.onstalled = () => console.log('⚠️ Remote video stalled')
         } else {
+          console.log('🔴 Creating audio element for remote stream')
           elem = document.createElement('audio')
           elem.srcObject = stream
           elem.id = consumer.id
@@ -454,15 +481,21 @@ class RoomClient {
   }
 
   async getConsumeStream(producerId) {
+    console.log('🔴 Getting consume stream for producer:', producerId)
     const { rtpCapabilities } = this.device
+    console.log('🔴 Device RTP capabilities:', rtpCapabilities)
+    
     const data = await this.socket.request('consume', {
       rtpCapabilities,
       consumerTransportId: this.consumerTransport.id, // might be
       producerId
     })
+    console.log('🔴 Consume response:', data)
+    
     const { id, kind, rtpParameters } = data
 
     let codecOptions = {}
+    console.log('🔴 Creating consumer with:', { id, producerId, kind, rtpParameters })
     const consumer = await this.consumerTransport.consume({
       id,
       producerId,
@@ -470,9 +503,11 @@ class RoomClient {
       rtpParameters,
       codecOptions
     })
+    console.log('🔴 Consumer created:', consumer)
 
     const stream = new MediaStream()
     stream.addTrack(consumer.track)
+    console.log('🔴 MediaStream created with track:', consumer.track)
 
     return {
       consumer,
