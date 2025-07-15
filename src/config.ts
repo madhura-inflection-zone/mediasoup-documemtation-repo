@@ -1,23 +1,69 @@
-const os = require('os')
-const ifaces = os.networkInterfaces()
+import * as os from 'os';
 
-const getLocalIp = () => {
-  let localIp = '127.0.0.1'
+const ifaces = os.networkInterfaces();
+
+const getLocalIp = (): string => {
+  let localIp = '127.0.0.1';
   Object.keys(ifaces).forEach((ifname) => {
-    for (const iface of ifaces[ifname]) {
+    for (const iface of ifaces[ifname] || []) {
       // Ignore IPv6 and 127.0.0.1
       if (iface.family !== 'IPv4' || iface.internal !== false) {
-        continue
+        continue;
       }
       // Set the local ip to the first IPv4 address found and exit the loop
-      localIp = iface.address
-      return
+      localIp = iface.address;
+      return;
     }
-  })
-  return localIp
+  });
+  return localIp;
+};
+
+interface MediaCodec {
+  kind: 'audio' | 'video';
+  mimeType: string;
+  clockRate: number;
+  channels?: number;
+  parameters?: Record<string, any>;
 }
 
-module.exports = {
+interface WorkerConfig {
+  rtcMinPort: number;
+  rtcMaxPort: number;
+  logLevel: string;
+  logTags: string[];
+}
+
+interface RouterConfig {
+  mediaCodecs: MediaCodec[];
+}
+
+interface ListenIp {
+  ip: string;
+  announcedIp: string;
+}
+
+interface WebRtcTransportConfig {
+  listenIps: ListenIp[];
+  maxIncomingBitrate: number;
+  initialAvailableOutgoingBitrate: number;
+}
+
+interface MediasoupConfig {
+  numWorkers: number;
+  worker: WorkerConfig;
+  router: RouterConfig;
+  webRtcTransport: WebRtcTransportConfig;
+}
+
+interface Config {
+  listenIp: string;
+  listenPort: number;
+  sslCrt: string;
+  sslKey: string;
+  mediasoup: MediasoupConfig;
+}
+
+const config: Config = {
   listenIp: '0.0.0.0',
   listenPort: 3016,
   sslCrt: '../ssl/cert.pem',
@@ -76,4 +122,6 @@ module.exports = {
       initialAvailableOutgoingBitrate: 1000000
     }
   }
-}
+};
+
+export default config; 
