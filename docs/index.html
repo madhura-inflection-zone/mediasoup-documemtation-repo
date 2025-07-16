@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MediaSoup Video Conferencing Service Documentation</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.css">
+  <style>
+    :root {
+      --theme-color: #3eaf7c;
+      --sidebar-width: 18rem;
+    }
+    
+    .markdown-section {
+      max-width: 1200px;
+    }
+    
+    .markdown-section h1 {
+      font-size: 2.5em;
+      color: var(--theme-color);
+    }
+    
+    .markdown-section h2 {
+      font-size: 1.8em;
+      border-bottom: 2px solid var(--theme-color);
+      padding-bottom: 0.3em;
+    }
+    
+    .markdown-section h3 {
+      font-size: 1.4em;
+      color: var(--theme-color);
+    }
+    
+    .markdown-section code {
+      background-color: #f8f8f8;
+      color: #e96900;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+    }
+    
+    .markdown-section pre {
+      background-color: #f8f8f8;
+      border-radius: 6px;
+    }
+    
+    .markdown-section pre code {
+      background-color: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    
+    .markdown-section table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    
+    .markdown-section th,
+    .markdown-section td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    
+    .markdown-section th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+    }
+    
+    .markdown-section tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    .markdown-section blockquote {
+      border-left: 4px solid var(--theme-color);
+      padding-left: 1em;
+      margin: 1em 0;
+      background-color: #f8f8f8;
+    }
+    
+    .markdown-section .tip {
+      background-color: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1em;
+      margin: 1em 0;
+      border-radius: 4px;
+    }
+    
+    .markdown-section .warning {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1em;
+      margin: 1em 0;
+      border-radius: 4px;
+    }
+    
+    .markdown-section .error {
+      background-color: #fef2f2;
+      border-left: 4px solid #ef4444;
+      padding: 1em;
+      margin: 1em 0;
+      border-radius: 4px;
+    }
+    
+    .sidebar {
+      background-color: #fafafa;
+    }
+    
+    .sidebar-nav {
+      padding: 1em 0;
+    }
+    
+    .sidebar-nav li {
+      margin: 0.5em 0;
+    }
+    
+    .sidebar-nav a {
+      color: #2c3e50;
+      text-decoration: none;
+      padding: 0.5em 1em;
+      display: block;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    
+    .sidebar-nav a:hover {
+      background-color: var(--theme-color);
+      color: white;
+    }
+    
+    .sidebar-nav a.active {
+      background-color: var(--theme-color);
+      color: white;
+    }
+    
+    .app-nav {
+      background-color: var(--theme-color);
+    }
+    
+    .app-nav li ul {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .markdown-section .copy-btn {
+      position: absolute;
+      top: 0.5em;
+      right: 0.5em;
+      background-color: var(--theme-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.3em 0.6em;
+      font-size: 0.8em;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+    
+    .markdown-section .copy-btn:hover {
+      opacity: 1;
+    }
+    
+    .markdown-section pre {
+      position: relative;
+    }
+    
+    .markdown-section pre .copy-btn {
+      position: absolute;
+      top: 0.5em;
+      right: 0.5em;
+    }
+    
+    @media (max-width: 768px) {
+      .markdown-section {
+        padding: 1em;
+      }
+      
+      .markdown-section h1 {
+        font-size: 2em;
+      }
+      
+      .markdown-section h2 {
+        font-size: 1.5em;
+      }
+      
+      .markdown-section h3 {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'MediaSoup Video Conferencing Service',
+      repo: '',
+      loadSidebar: true,
+      subMaxLevel: 3,
+      auto2top: true,
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Search',
+        noData: 'No Results',
+        depth: 6
+      },
+      copyCode: {
+        buttonText: 'Copy',
+        errorText: 'Error',
+        successText: 'Copied'
+      },
+      pagination: {
+        previousText: 'Previous',
+        nextText: 'Next',
+        crossChapter: true,
+        crossChapterText: true
+      },
+      plugins: [
+        function(hook, vm) {
+          hook.beforeEach(function(html) {
+            // Add copy button to code blocks
+            return html.replace(/<pre><code class="([^"]+)">/g, function(match, lang) {
+              return '<pre><code class="' + lang + '"><button class="copy-btn">Copy</button>';
+            });
+          });
+          
+          hook.doneEach(function() {
+            // Add click handlers for copy buttons
+            document.querySelectorAll('.copy-btn').forEach(function(btn) {
+              btn.addEventListener('click', function() {
+                const codeBlock = this.parentElement;
+                const text = codeBlock.textContent.replace('Copy', '').trim();
+                
+                navigator.clipboard.writeText(text).then(function() {
+                  btn.textContent = 'Copied!';
+                  setTimeout(function() {
+                    btn.textContent = 'Copy';
+                  }, 2000);
+                }).catch(function() {
+                  btn.textContent = 'Error';
+                  setTimeout(function() {
+                    btn.textContent = 'Copy';
+                  }, 2000);
+                });
+              });
+            });
+          });
+        }
+      ]
+    }
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-javascript.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-docker.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+</body>
+</html> 
